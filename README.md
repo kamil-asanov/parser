@@ -1,2 +1,2 @@
 # parser
-python parser hh
+golang parser hh
