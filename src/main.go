@@ -2,22 +2,46 @@ package main
 
 import (
 	"fmt"
+	"time"
+
 	//"encoding/csv"
 	"github.com/gocolly/colly"
 	//"log"
 	//"os"
 )
 
+type vacancy struct {
+	Company string
+	Salary  string
+	URL     string
+	Title   string
+}
+
 func main() {
+	vacancies := []vacancy{}
 	collector := colly.NewCollector(
-		colly.AllowedDomains("ru.wikipedia.org"),
+		colly.AllowedDomains("hh.ru"),
+		colly.Async(true),
 	)
 
-	collector.OnHTML("a[href]", func(element *colly.HTMLElement) {
-		links := element.Attr("href")
-		fmt.Println("Link found: %q -> %s\n", element.Text, links)
+	collector.OnHTML("div[vacancy-serp-item-body__main-info]", func(element *colly.HTMLElement) {
+		temp := vacancy{}
+		temp.Title = element.ChildText("a[serp-item__title]")
+		temp.URL = element.ChildAttr("a[serp-item__title]", "href")
+		temp.Company = element.ChildText("a[bloko-link bloko-link_kind-tertiary]")
+		temp.Salary = element.ChildText("span[bloko-header-section-2]")
+		fmt.Println(temp)
+		vacancies = append(vacancies, temp)
 
-		collector.Visit(element.Request.AbsoluteURL(links))
+		// links := element.Attr("href")
+		// fmt.Println("Link found: %q -> %s\n", element.Text, links)
+
+		// collector.Visit(element.Request.AbsoluteURL(links))
+	})
+
+	collector.Limit(&colly.LimitRule{
+		Parallelism: 2,
+		RandomDelay: 5 * time.Second,
 	})
 
 	collector.OnError(func(request *colly.Response, err error) {
@@ -27,5 +51,8 @@ func main() {
 	collector.OnRequest(func(request *colly.Request) {
 		fmt.Println("Visiting", request.URL.String())
 	})
-	collector.Visit("https://ru.wikipedia.org/wiki/%D0%9D%D0%BE%D0%B2%D0%B0%D1%8F_%D0%BD%D0%B0%D1%86%D0%B8%D0%BE%D0%BD%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F_%D0%B3%D0%B0%D0%BB%D0%B5%D1%80%D0%B5%D1%8F")
+	collector.Visit("https://hh.ru/search/vacancy?area=1&experience=between1And3&search_field=name&search_field=company_name&search_field=description&text=DevOps&enable_snippets=false&L_save_area=true")
+
+	collector.Wait()
+	fmt.Println(vacancies)
 }
