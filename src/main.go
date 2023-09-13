@@ -24,19 +24,14 @@ func main() {
 		colly.Async(true),
 	)
 
-	collector.OnHTML("div[vacancy-serp-item-body__main-info]", func(element *colly.HTMLElement) {
+	collector.OnHTML(".vacancy-serp-item-body__main-info", func(element *colly.HTMLElement) {
 		temp := vacancy{}
-		temp.Title = element.ChildText("a[serp-item__title]")
-		temp.URL = element.ChildAttr("a[serp-item__title]", "href")
-		temp.Company = element.ChildText("a[bloko-link bloko-link_kind-tertiary]")
-		temp.Salary = element.ChildText("span[bloko-header-section-2]")
-		fmt.Println(temp)
+		temp.Title = element.ChildText(".serp-item__title")
+		temp.URL = element.ChildAttr(".serp-item__title", "href")
+		temp.Company = element.ChildText(".bloko-link bloko-link_kind-tertiary")
+		temp.Salary = element.ChildText(".bloko-header-section-2")
 		vacancies = append(vacancies, temp)
 
-		// links := element.Attr("href")
-		// fmt.Println("Link found: %q -> %s\n", element.Text, links)
-
-		// collector.Visit(element.Request.AbsoluteURL(links))
 	})
 
 	collector.Limit(&colly.LimitRule{
@@ -51,7 +46,7 @@ func main() {
 	collector.OnRequest(func(request *colly.Request) {
 		fmt.Println("Visiting", request.URL.String())
 	})
-	collector.Visit("https://hh.ru/search/vacancy?area=1&experience=between1And3&search_field=name&search_field=company_name&search_field=description&text=DevOps&enable_snippets=false&L_save_area=true")
+	collector.Visit("https://hh.ru/search/vacancy?search_field=name&search_field=company_name&search_field=description&enable_snippets=false&L_save_area=true&experience=between1And3&professional_role=160&schedule=remote&text=DevOps")
 
 	collector.Wait()
 	fmt.Println(vacancies)
