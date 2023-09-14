@@ -4,13 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	//"encoding/csv"
 	"github.com/gocolly/colly"
-	//"log"
-	//"os"
 )
 
-type vacancy struct {
+type Vacancy struct {
 	Company string
 	Salary  string
 	URL     string
@@ -18,19 +15,24 @@ type vacancy struct {
 }
 
 func main() {
-	vacancies := []vacancy{}
+	parse()
+
+}
+
+func parse() {
+	Vacancies := []Vacancy{}
 	collector := colly.NewCollector(
 		colly.AllowedDomains("hh.ru"),
 		colly.Async(true),
 	)
 
 	collector.OnHTML(".vacancy-serp-item-body__main-info", func(element *colly.HTMLElement) {
-		temp := vacancy{}
+		temp := Vacancy{}
 		temp.Title = element.ChildText(".serp-item__title")
 		temp.URL = element.ChildAttr(".serp-item__title", "href")
 		temp.Company = element.ChildText(".bloko-link bloko-link_kind-tertiary")
 		temp.Salary = element.ChildText(".bloko-header-section-2")
-		vacancies = append(vacancies, temp)
+		Vacancies = append(Vacancies, temp)
 
 	})
 
@@ -49,5 +51,5 @@ func main() {
 	collector.Visit("https://hh.ru/search/vacancy?search_field=name&search_field=company_name&search_field=description&enable_snippets=false&L_save_area=true&experience=between1And3&professional_role=160&schedule=remote&text=DevOps")
 
 	collector.Wait()
-	fmt.Println(vacancies)
+	fmt.Println(Vacancies)
 }
