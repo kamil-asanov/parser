@@ -15,14 +15,15 @@ type Vacancy struct {
 }
 
 func main() {
-	parse()
+	var link = "https://hh.ru/search/vacancy?search_field=name&search_field=company_name&search_field=description&enable_snippets=false&L_save_area=true&experience=between1And3&professional_role=160&schedule=remote&text=DevOps"
+	parse("hh.ru", link)
 
 }
 
-func parse() {
+func parse(site string, link string) {
 	Vacancies := []Vacancy{}
 	collector := colly.NewCollector(
-		colly.AllowedDomains("hh.ru"),
+		colly.AllowedDomains(site),
 		colly.Async(true),
 	)
 
@@ -48,7 +49,7 @@ func parse() {
 	collector.OnRequest(func(request *colly.Request) {
 		fmt.Println("Visiting", request.URL.String())
 	})
-	collector.Visit("https://hh.ru/search/vacancy?search_field=name&search_field=company_name&search_field=description&enable_snippets=false&L_save_area=true&experience=between1And3&professional_role=160&schedule=remote&text=DevOps")
+	collector.Visit(link)
 
 	collector.Wait()
 	fmt.Println(Vacancies)
