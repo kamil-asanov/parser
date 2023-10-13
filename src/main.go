@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"reflect"
 
 	tgbotapi "github.com/Syfaro/telegram-bot-api"
+	_ "github.com/lib/pq"
 )
 
 type Vacancy struct {
@@ -52,29 +52,15 @@ func telegramBot() {
 
 			case "/set_link":
 
-				if os.Getenv("DB_SWITCH") == "on" {
+				ans := fmt.Sprintf("Вставьте ссылку, по которой будет идти поиск вакансий")
 
-					if err != nil {
+				//Отправлем сообщение
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, ans)
+				bot.Send(msg)
+				fmt.Println(update.Message.Text)
+				//Parse("hh.ru", Link)
+				fmt.Println()
 
-						//Отправлем сообщение
-						msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Database error.")
-						bot.Send(msg)
-					}
-
-					ans := fmt.Sprintf("Вставьте ссылку, по которой будет идти поиск вакансий")
-
-					//Отправлем сообщение
-					msg := tgbotapi.NewMessage(update.Message.Chat.ID, ans)
-					bot.Send(msg)
-
-					Link = update.Message.Text
-
-				} else {
-
-					//Отправлем сообщение
-					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "что-то пошло не так")
-					bot.Send(msg)
-				}
 			case "/parse":
 
 				//   request := "https://" + language + ".wikipedia.org/w/api.php?action=opensearch&search=" + url + "&limit=3&origin=*&format=json"
@@ -83,33 +69,26 @@ func telegramBot() {
 				//   message := (request)
 				Parse("hh.ru", Link)
 
-				if os.Getenv("DB_SWITCH") == "on" {
+				//Отправляем данные в БД
+				for _, value := range Vacancies {
+					if err := CollectData(value.Title, value.Salary, value.Company, value.URL); err != nil {
 
-					//Отправляем данные в БД
-					for _, value := range Vacancies {
-						if err := CollectData(value.Title, value.Salary, value.Company, value.URL); err != nil {
-
-							//Отправлем сообщение
-							msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Database error, but bot still working.")
-							bot.Send(msg)
-						}
+						//Отправлем сообщение
+						msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Database error, but bot still working.")
+						bot.Send(msg)
 					}
 				}
-
-				//Проходим через срез и отправляем каждый элемент пользователю
-				for _, value := range Vacancies {
-
-					//Отправлем сообщение
-					msg := tgbotapi.NewMessage(update.Message.Chat.ID, value.Title+value.Company+value.Salary+value.URL)
-					bot.Send(msg)
-				}
 			}
-		} else {
 
-			//Отправлем сообщение
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Use the words for search.")
-			bot.Send(msg)
+			//Проходим через срез и отправляем каждый элемент пользователю
+			for _, value := range Vacancies {
+
+				//Отправлем сообщение
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, value.Title+value.Company+value.Salary+value.URL)
+				bot.Send(msg)
+			}
 		}
+
 	}
 }
 
