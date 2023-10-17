@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bot
+  labels:
+    app: telegram
+    tier: parser
+spec:
+  # modify replicas according to your case
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: parser
+  template:
+    metadata:
+      labels:
+        tier: parser
+    spec:
+      containers:
+      - name: bot
+        image: test:latest
+        imagePullPolicy: Never
+        env:
+          - name: CREATE_TABLE
+            value: "yes"
+          - name: DB_SWITCH
+            value: "on"
+          - name: TOKEN
+            value: 6638858172:AAEJ2N-9DTX8Pz31Iu4E-CX8BzWCFe2rPHk
+          - name: HOST
+            value: postgres
+          - name: PORT
+            value: "5432"
+          - name: USER
+            value: postgres
+          - name: PASSWORD
+            value: postgres
+          - name: DBNAME
+            value: postgres
+          - name: SSLMODE
+            value: disable
+          - name: test
+            value: test
+          

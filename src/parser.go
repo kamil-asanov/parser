@@ -39,5 +39,4 @@ func Parse(site string, link string) {
 	collector.Visit(link)
 
 	collector.Wait()
-	fmt.Println(Vacancies)
 }

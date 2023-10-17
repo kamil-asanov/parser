@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"reflect"
+	"time"
 
 	tgbotapi "github.com/Syfaro/telegram-bot-api"
 	_ "github.com/lib/pq"
@@ -58,15 +60,10 @@ func telegramBot() {
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, ans)
 				bot.Send(msg)
 				fmt.Println(update.Message.Text)
-				//Parse("hh.ru", Link)
 				fmt.Println()
 
 			case "/parse":
 
-				//   request := "https://" + language + ".wikipedia.org/w/api.php?action=opensearch&search=" + url + "&limit=3&origin=*&format=json"
-
-				//Присваем данные среза с ответом в переменную message
-				//   message := (request)
 				Parse("hh.ru", Link)
 
 				//Отправляем данные в БД
@@ -93,20 +90,20 @@ func telegramBot() {
 }
 
 func main() {
-	//time.Sleep(1 * time.Minute)
+	time.Sleep(1 * time.Minute)
+	fmt.Println(os.Getenv("CREATE_TABLE"))
+	fmt.Println(os.Getenv("HOST"))
+	fmt.Println(os.Getenv("test"))
+	if os.Getenv("CREATE_TABLE") == "yes" {
 
-	//Создаем таблицу
-	// if os.Getenv("CREATE_TABLE") == "yes" {
+		if os.Getenv("DB_SWITCH") == "on" {
 
-	// 	if os.Getenv("DB_SWITCH") == "on" {
-
-	// 		if err := CreateTable(); err != nil {
-
-	// 			panic(err)
-	// 		}
-	// 	}
-	// }
-
+			if err := CreateTable(); err != nil {
+				fmt.Println("не удалось создать таблицу в бд")
+				panic(err)
+			}
+		}
+	}
 	//time.Sleep(1 * time.Minute)
 
 	//Вызываем бота

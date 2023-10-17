@@ -6,6 +6,8 @@ services:
     image: postgres
     environment:
       POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
 
   bot:
     image: test
@@ -19,3 +21,5 @@ services:
       PASSWORD: postgres
       DBNAME: postgres
       SSLMODE: disable
+      depends_on: db
+          
