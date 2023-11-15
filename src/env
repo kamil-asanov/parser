@@ -1,0 +1,6 @@
+HOST=postgres
+PORT=5432
+USER=postgres
+PASSWORD=postgres
+DBNAME=postgres
+SSLMODE=disable
